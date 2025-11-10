@@ -163,9 +163,7 @@
             <button onclick="searchUser()">Search</button>
         </div>
         
-        <div id="result">
-            <!-- Results will be displayed here -->
-        </div>
+        <div id="result"></div>
         
         <div class="footer">
             This tool uses the official Roblox API
@@ -182,7 +180,6 @@
                 return;
             }
 
-            // Show loading state
             resultDiv.innerHTML = `
                 <div class="loading">
                     <div class="spinner"></div>
@@ -192,24 +189,22 @@
             resultDiv.style.display = 'block';
 
             try {
-                // Step 1: Get User ID from username
-                const idResponse = await fetch(`https://api.roblox.com/users/get-by-username?username=${username}`);
+                // استخدام API جديد
+                const response = await fetch(`https://users.roblox.com/v1/users/search?keyword=${username}&limit=10`);
                 
-                if (!idResponse.ok) {
-                    throw new Error('User not found');
+                if (!response.ok) {
+                    throw new Error('API error');
                 }
                 
-                const userData = await idResponse.json();
+                const data = await response.json();
 
-                if (userData.Id) {
-                    // Step 2: Get user details including creation date
-                    const infoResponse = await fetch(`https://users.roblox.com/v1/users/${userData.Id}`);
+                if (data.data && data.data.length > 0) {
+                    const user = data.data[0];
+                    const userId = user.id;
                     
-                    if (!infoResponse.ok) {
-                        throw new Error('Could not fetch user details');
-                    }
-                    
-                    const userInfo = await infoResponse.json();
+                    // الحصول على معلومات المستخدم
+                    const userResponse = await fetch(`https://users.roblox.com/v1/users/${userId}`);
+                    const userInfo = await userResponse.json();
 
                     if (userInfo.created) {
                         const creationDate = new Date(userInfo.created);
@@ -224,13 +219,13 @@
                             <h3 style="margin-bottom: 20px; text-align: center;">✅ Account Found</h3>
                             <div class="result-item">
                                 <span><strong>Username:</strong></span>
-                                <span>${userData.Username}</span>
-                                <button class="copy-btn" onclick="copyToClipboard('${userData.Username}')">Copy</button>
+                                <span>${user.name}</span>
+                                <button class="copy-btn" onclick="copyToClipboard('${user.name}')">Copy</button>
                             </div>
                             <div class="result-item">
                                 <span><strong>User ID:</strong></span>
-                                <span>${userData.Id}</span>
-                                <button class="copy-btn" onclick="copyToClipboard('${userData.Id}')">Copy</button>
+                                <span>${user.id}</span>
+                                <button class="copy-btn" onclick="copyToClipboard('${user.id}')">Copy</button>
                             </div>
                             <div class="result-item">
                                 <span><strong>Creation Date:</strong></span>
@@ -242,20 +237,15 @@
                                 <span>${formattedTime}</span>
                                 <button class="copy-btn" onclick="copyToClipboard('${formattedTime}')">Copy</button>
                             </div>
-                            <div class="result-item">
-                                <span><strong>Full Date:</strong></span>
-                                <span>${userInfo.created}</span>
-                                <button class="copy-btn" onclick="copyToClipboard('${userInfo.created}')">Copy</button>
-                            </div>
                         `;
                     } else {
-                        showError('Could not find creation date for this user');
+                        showError('Could not find creation date');
                     }
                 } else {
                     showError('User not found!');
                 }
             } catch (error) {
-                showError('User not found or connection error. Please try again.');
+                showError('Connection error. Please try again.');
                 console.error(error);
             }
         }
@@ -268,7 +258,6 @@
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                // Show temporary feedback
                 const originalText = event.target.textContent;
                 event.target.textContent = 'Copied!';
                 setTimeout(() => {
@@ -277,7 +266,6 @@
             });
         }
 
-        // Allow searching with Enter key
         document.getElementById('username').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 searchUser();
