@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Account Date Checker</title>
+    <title>باحث روبلكس - معرفة تاريخ الإنشاء</title>
     <style>
         * {
             margin: 0;
@@ -55,7 +55,7 @@
             flex: 1;
             padding: 15px 20px;
             border: none;
-            border-radius: 10px 0 0 10px;
+            border-radius: 0 10px 10px 0;
             font-size: 16px;
             background: rgba(255, 255, 255, 0.9);
             outline: none;
@@ -64,7 +64,7 @@
         button {
             padding: 15px 25px;
             border: none;
-            border-radius: 0 10px 10px 0;
+            border-radius: 10px 0 0 10px;
             background: #ff4757;
             color: white;
             font-size: 16px;
@@ -152,162 +152,179 @@
             font-size: 14px;
         }
         
-        .test-users {
-            margin-top: 15px;
+        .success-badge {
+            background: rgba(46, 204, 113, 0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
             text-align: center;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Roblox Account Checker</h1>
-        <p class="subtitle">Enter a Roblox username to find account creation date</p>
+        <h1>باحث روبلكس</h1>
+        <p class="subtitle">ادخل أي يوزر روبلكس لمعرفة تاريخ إنشاء الحساب</p>
         
         <div class="search-box">
-            <input type="text" id="username" placeholder="Try: Roblox, builderman, John">
-            <button onclick="searchUser()">Search</button>
-        </div>
-        
-        <div class="test-users">
-            Test usernames: Roblox, builderman, John, Alex
+            <input type="text" id="username" placeholder="ادخل أي يوزر روبلكس...">
+            <button onclick="searchUser()">بحث</button>
         </div>
         
         <div id="result"></div>
         
         <div class="footer">
-            Uses Roblox API • Works with popular accounts
+            يعمل مع جميع يوزرات روبلكس • Roblox API
         </div>
     </div>
 
     <script>
-        // قائمة بحسابات معروفة للتجربة
-        const knownUsers = {
-            '1': { name: 'Roblox', created: '2006-05-15T05:46:12.077Z' },
-            '2': { name: 'builderman', created: '2007-03-01T00:00:00.000Z' },
-            '3': { name: 'John', created: '2007-05-01T00:00:00.000Z' }
-        };
-
         async function searchUser() {
             const username = document.getElementById('username').value.trim();
             const resultDiv = document.getElementById('result');
             
             if (!username) {
-                showError('Please enter a username!');
+                showError('الرجاء ادخال يوزر!');
                 return;
             }
 
             resultDiv.innerHTML = `
                 <div class="loading">
                     <div class="spinner"></div>
-                    Searching for "${username}"...
+                    جاري البحث عن "${username}"...
                 </div>
             `;
             resultDiv.style.display = 'block';
 
             try {
-                // محاولة استخدام API الأول
-                let userData = null;
+                // الطريقة الأولى: استخدام Roblox API الرسمي
+                const searchResponse = await fetch(`https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(username)}&limit=1`);
                 
-                // البحث في الحسابات المعروفة أولاً
-                const knownUser = Object.values(knownUsers).find(user => 
-                    user.name.toLowerCase() === username.toLowerCase()
-                );
-                
-                if (knownUser) {
-                    userData = knownUser;
-                    const creationDate = new Date(userData.created);
-                    const formattedDate = creationDate.toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    });
-                    const formattedTime = creationDate.toLocaleTimeString('en-US');
+                if (searchResponse.ok) {
+                    const searchData = await searchResponse.json();
                     
-                    resultDiv.innerHTML = `
-                        <h3 style="margin-bottom: 20px; text-align: center;">✅ Account Found</h3>
-                        <div class="result-item">
-                            <span><strong>Username:</strong></span>
-                            <span>${userData.name}</span>
-                            <button class="copy-btn" onclick="copyToClipboard('${userData.name}')">Copy</button>
-                        </div>
-                        <div class="result-item">
-                            <span><strong>User ID:</strong></span>
-                            <span>${Object.keys(knownUsers).find(key => knownUsers[key].name === userData.name)}</span>
-                            <button class="copy-btn" onclick="copyToClipboard('${Object.keys(knownUsers).find(key => knownUsers[key].name === userData.name)}')">Copy</button>
-                        </div>
-                        <div class="result-item">
-                            <span><strong>Creation Date:</strong></span>
-                            <span>${formattedDate}</span>
-                            <button class="copy-btn" onclick="copyToClipboard('${formattedDate}')">Copy</button>
-                        </div>
-                        <div class="result-item">
-                            <span><strong>Creation Time:</strong></span>
-                            <span>${formattedTime}</span>
-                            <button class="copy-btn" onclick="copyToClipboard('${formattedTime}')">Copy</button>
-                        </div>
-                        <div class="result-item">
-                            <span><strong>Status:</strong></span>
-                            <span>✅ Working with demo data</span>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // إذا ما كان في الحسابات المعروفة، جرب API
-                const response = await fetch(`https://users.roblox.com/v1/users/search?keyword=${username}&limit=1`);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.data && data.data.length > 0) {
-                        const user = data.data[0];
+                    if (searchData.data && searchData.data.length > 0) {
+                        const user = searchData.data[0];
+                        
+                        // الحصول على معلومات المستخدم الكاملة
                         const userResponse = await fetch(`https://users.roblox.com/v1/users/${user.id}`);
                         const userInfo = await userResponse.json();
-
+                        
                         if (userInfo.created) {
                             const creationDate = new Date(userInfo.created);
-                            const formattedDate = creationDate.toLocaleDateString('en-US', {
+                            const arabicDate = creationDate.toLocaleDateString('ar-SA', {
                                 year: 'numeric',
                                 month: 'long',
                                 day: 'numeric'
                             });
-                            const formattedTime = creationDate.toLocaleTimeString('en-US');
+                            const arabicTime = creationDate.toLocaleTimeString('ar-SA');
                             
                             resultDiv.innerHTML = `
-                                <h3 style="margin-bottom: 20px; text-align: center;">✅ Account Found</h3>
+                                <h3 style="margin-bottom: 20px; text-align: center;">✅ تم العثور على الحساب</h3>
                                 <div class="result-item">
-                                    <span><strong>Username:</strong></span>
+                                    <span><strong>اليوزر:</strong></span>
                                     <span>${user.name}</span>
-                                    <button class="copy-btn" onclick="copyToClipboard('${user.name}')">Copy</button>
+                                    <button class="copy-btn" onclick="copyToClipboard('${user.name}')">نسخ</button>
                                 </div>
                                 <div class="result-item">
-                                    <span><strong>User ID:</strong></span>
+                                    <span><strong>الرقم:</strong></span>
                                     <span>${user.id}</span>
-                                    <button class="copy-btn" onclick="copyToClipboard('${user.id}')">Copy</button>
+                                    <button class="copy-btn" onclick="copyToClipboard('${user.id}')">نسخ</button>
                                 </div>
                                 <div class="result-item">
-                                    <span><strong>Creation Date:</strong></span>
-                                    <span>${formattedDate}</span>
-                                    <button class="copy-btn" onclick="copyToClipboard('${formattedDate}')">Copy</button>
+                                    <span><strong>تاريخ الإنشاء:</strong></span>
+                                    <span>${arabicDate}</span>
+                                    <button class="copy-btn" onclick="copyToClipboard('${arabicDate}')">نسخ</button>
                                 </div>
                                 <div class="result-item">
-                                    <span><strong>Creation Time:</strong></span>
-                                    <span>${formattedTime}</span>
-                                    <button class="copy-btn" onclick="copyToClipboard('${formattedTime}')">Copy</button>
+                                    <span><strong>وقت الإنشاء:</strong></span>
+                                    <span>${arabicTime}</span>
+                                    <button class="copy-btn" onclick="copyToClipboard('${arabicTime}')">نسخ</button>
+                                </div>
+                                <div class="result-item">
+                                    <span><strong>العمر:</strong></span>
+                                    <span>${calculateAccountAge(creationDate)}</span>
+                                </div>
+                                <div class="success-badge">
+                                    ✅ يعمل مع جميع اليوزرات
                                 </div>
                             `;
-                        } else {
-                            showError('Could not find creation date for this user');
+                            return;
                         }
-                    } else {
-                        showError('User not found! Try: Roblox, builderman, John');
                     }
-                } else {
-                    showError('API temporarily unavailable. Try demo accounts: Roblox, builderman');
                 }
+
+                // إذا فشلت الطريقة الأولى، جرب الطريقة الثانية
+                try {
+                    const alternativeResponse = await fetch(`https://api.roblox.com/users/get-by-username?username=${encodeURIComponent(username)}`);
+                    
+                    if (alternativeResponse.ok) {
+                        const userData = await alternativeResponse.json();
+                        
+                        if (userData.Id) {
+                            const userInfoResponse = await fetch(`https://users.roblox.com/v1/users/${userData.Id}`);
+                            const userInfo = await userInfoResponse.json();
+                            
+                            if (userInfo.created) {
+                                const creationDate = new Date(userInfo.created);
+                                const arabicDate = creationDate.toLocaleDateString('ar-SA');
+                                const arabicTime = creationDate.toLocaleTimeString('ar-SA');
+                                
+                                resultDiv.innerHTML = `
+                                    <h3 style="margin-bottom: 20px; text-align: center;">✅ تم العثور على الحساب</h3>
+                                    <div class="result-item">
+                                        <span><strong>اليوزر:</strong></span>
+                                        <span>${userData.Username}</span>
+                                        <button class="copy-btn" onclick="copyToClipboard('${userData.Username}')">نسخ</button>
+                                    </div>
+                                    <div class="result-item">
+                                        <span><strong>الرقم:</strong></span>
+                                        <span>${userData.Id}</span>
+                                        <button class="copy-btn" onclick="copyToClipboard('${userData.Id}')">نسخ</button>
+                                    </div>
+                                    <div class="result-item">
+                                        <span><strong>تاريخ الإنشاء:</strong></span>
+                                        <span>${arabicDate}</span>
+                                        <button class="copy-btn" onclick="copyToClipboard('${arabicDate}')">نسخ</button>
+                                    </div>
+                                    <div class="result-item">
+                                        <span><strong>وقت الإنشاء:</strong></span>
+                                        <span>${arabicTime}</span>
+                                        <button class="copy-btn" onclick="copyToClipboard('${arabicTime}')">نسخ</button>
+                                    </div>
+                                    <div class="success-badge">
+                                        ✅ يعمل مع جميع اليوزرات
+                                    </div>
+                                `;
+                                return;
+                            }
+                        }
+                    }
+                } catch (secondError) {
+                    console.log('الطريقة الثانية فشلت');
+                }
+
+                // إذا فشلت كل الطرق
+                showError('اليوزر غير موجود أو محمي. جرب يوزر آخر!');
+                
             } catch (error) {
-                showError('Try these demo accounts: Roblox, builderman, John');
+                showError('خطأ في الاتصال. تأكد من الإنترنت وحاول مرة أخرى.');
+                console.error(error);
+            }
+        }
+
+        function calculateAccountAge(creationDate) {
+            const now = new Date();
+            const diffTime = Math.abs(now - creationDate);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const diffYears = Math.floor(diffDays / 365);
+            const remainingDays = diffDays % 365;
+            
+            if (diffYears > 0) {
+                return `${diffYears} سنة و ${remainingDays} يوم`;
+            } else {
+                return `${diffDays} يوم`;
             }
         }
 
@@ -320,21 +337,19 @@
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
                 const originalText = event.target.textContent;
-                event.target.textContent = 'Copied!';
+                event.target.textContent = 'تم النسخ!';
                 setTimeout(() => {
                     event.target.textContent = originalText;
                 }, 1500);
             });
         }
 
+        // البحث عند الضغط على Enter
         document.getElementById('username').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 searchUser();
             }
         });
-
-        // تعبئة يوزر افتراضي للتجربة
-        document.getElementById('username').value = 'Roblox';
     </script>
 </body>
 </html>
