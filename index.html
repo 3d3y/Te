@@ -142,7 +142,7 @@
         
         @keyframes spin {
             0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            ‎100% { transform: rotate(360deg); }
         }
         
         .footer {
@@ -159,6 +159,24 @@
             font-size: 14px;
             text-align: center;
             margin-top: 15px;
+        }
+        
+        .manual-search {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .manual-link {
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .manual-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -198,8 +216,11 @@
             resultDiv.style.display = 'block';
 
             try {
-                // الطريقة الأولى: استخدام Roblox API الرسمي
-                const searchResponse = await fetch(`https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(username)}&limit=1`);
+                // استخدام CORS proxy لتجاوز القيود
+                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                const apiUrl = `https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(username)}&limit=1`;
+                
+                const searchResponse = await fetch(proxyUrl + encodeURIComponent(apiUrl));
                 
                 if (searchResponse.ok) {
                     const searchData = await searchResponse.json();
@@ -208,7 +229,8 @@
                         const user = searchData.data[0];
                         
                         // الحصول على معلومات المستخدم الكاملة
-                        const userResponse = await fetch(`https://users.roblox.com/v1/users/${user.id}`);
+                        const userApiUrl = `https://users.roblox.com/v1/users/${user.id}`;
+                        const userResponse = await fetch(proxyUrl + encodeURIComponent(userApiUrl));
                         const userInfo = await userResponse.json();
                         
                         if (userInfo.created) {
@@ -247,7 +269,7 @@
                                     <span>${calculateAccountAge(creationDate)}</span>
                                 </div>
                                 <div class="success-badge">
-                                    ✅ يعمل مع جميع اليوزرات
+                                    ✅ تم العثور على الحساب بنجاح
                                 </div>
                             `;
                             return;
@@ -255,63 +277,41 @@
                     }
                 }
 
-                // إذا فشلت الطريقة الأولى، جرب الطريقة الثانية
-                try {
-                    const alternativeResponse = await fetch(`https://api.roblox.com/users/get-by-username?username=${encodeURIComponent(username)}`);
-                    
-                    if (alternativeResponse.ok) {
-                        const userData = await alternativeResponse.json();
-                        
-                        if (userData.Id) {
-                            const userInfoResponse = await fetch(`https://users.roblox.com/v1/users/${userData.Id}`);
-                            const userInfo = await userInfoResponse.json();
-                            
-                            if (userInfo.created) {
-                                const creationDate = new Date(userInfo.created);
-                                const arabicDate = creationDate.toLocaleDateString('ar-SA');
-                                const arabicTime = creationDate.toLocaleTimeString('ar-SA');
-                                
-                                resultDiv.innerHTML = `
-                                    <h3 style="margin-bottom: 20px; text-align: center;">✅ تم العثور على الحساب</h3>
-                                    <div class="result-item">
-                                        <span><strong>اليوزر:</strong></span>
-                                        <span>${userData.Username}</span>
-                                        <button class="copy-btn" onclick="copyToClipboard('${userData.Username}')">نسخ</button>
-                                    </div>
-                                    <div class="result-item">
-                                        <span><strong>الرقم:</strong></span>
-                                        <span>${userData.Id}</span>
-                                        <button class="copy-btn" onclick="copyToClipboard('${userData.Id}')">نسخ</button>
-                                    </div>
-                                    <div class="result-item">
-                                        <span><strong>تاريخ الإنشاء:</strong></span>
-                                        <span>${arabicDate}</span>
-                                        <button class="copy-btn" onclick="copyToClipboard('${arabicDate}')">نسخ</button>
-                                    </div>
-                                    <div class="result-item">
-                                        <span><strong>وقت الإنشاء:</strong></span>
-                                        <span>${arabicTime}</span>
-                                        <button class="copy-btn" onclick="copyToClipboard('${arabicTime}')">نسخ</button>
-                                    </div>
-                                    <div class="success-badge">
-                                        ✅ يعمل مع جميع اليوزرات
-                                    </div>
-                                `;
-                                return;
-                            }
-                        }
-                    }
-                } catch (secondError) {
-                    console.log('الطريقة الثانية فشلت');
-                }
-
-                // إذا فشلت كل الطرق
-                showError('اليوزر غير موجود أو محمي. جرب يوزر آخر!');
+                // إذا فشل البحث التلقائي، نعرض طريقة يدوية
+                showManualSearch(username);
                 
             } catch (error) {
-                showError('خطأ في الاتصال. تأكد من الإنترنت وحاول مرة أخرى.');
+                showManualSearch(username);
                 console.error(error);
             }
+        }
+
+        function showManualSearch(username) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div class="error">⚠️ تعذر البحث التلقائي</div>
+                <div class="manual-search">
+                    <h4>🔍 ابحث يدوياً عن:</h4>
+                    <p><strong>"${username}"</strong></p>
+                    <p>استخدم أحد هذه المواقع:</p>
+                    <p>
+                        <a href="https://www.rolsearch.com/search/${encodeURIComponent(username)}" 
+                           target="_blank" class="manual-link">
+                           🌐 Rolsearch.com
+                        </a>
+                    </p>
+                    <p>
+                        <a href="https://www.roblox.com/search/users?keyword=${encodeURIComponent(username)}" 
+                           target="_blank" class="manual-link">
+                           🔍 بحث روبلكس الرسمي
+                        </a>
+                    </p>
+                    <p style="margin-top: 10px; font-size: 12px; opacity: 0.8;">
+                        اضغط على الرابط لفتح البحث في نافذة جديدة
+                    </p>
+                </div>
+            `;
+            resultDiv.style.display = 'block';
         }
 
         function calculateAccountAge(creationDate) {
