@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>باحث روبلكس المتقدم</title>
+    <title>Roblox Account Finder</title>
     <style>
         * {
             margin: 0;
@@ -27,7 +27,7 @@
             border-radius: 20px;
             padding: 40px;
             width: 100%;
-            max-width: 600px;
+            max-width: 500px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
@@ -36,7 +36,8 @@
             color: white;
             text-align: center;
             margin-bottom: 10px;
-            font-size: 28px;
+            font-size: 32px;
+            font-weight: 600;
         }
         
         .subtitle {
@@ -49,31 +50,46 @@
         .search-box {
             display: flex;
             margin-bottom: 20px;
+            gap: 10px;
         }
         
         input {
             flex: 1;
             padding: 15px 20px;
             border: none;
-            border-radius: 0 10px 10px 0;
+            border-radius: 10px;
             font-size: 16px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
         }
         
         button {
             padding: 15px 25px;
             border: none;
-            border-radius: 10px 0 0 10px;
+            border-radius: 10px;
             background: #ff4757;
             color: white;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            min-width: 120px;
         }
         
         button:hover {
             background: #ff3742;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
         }
         
         #result {
@@ -91,25 +107,40 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
+        .result-grid {
+            display: grid;
+            gap: 15px;
+        }
+        
         .result-item {
-            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 10px;
+            padding: 12px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .result-item:last-child {
             border-bottom: none;
-            margin-bottom: 0;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .result-value {
+            color: white;
+            font-weight: 500;
         }
         
         .copy-btn {
             background: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            padding: 5px 10px;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
             font-size: 12px;
+            color: white;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -119,17 +150,21 @@
         }
         
         .avatar-img {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             border: 3px solid white;
-            margin: 10px auto;
+            margin: 0 auto 15px;
             display: block;
         }
         
         .error {
-            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid rgba(255, 107, 107, 0.5);
+            border-radius: 10px;
+            padding: 20px;
             text-align: center;
+            color: #ff6b6b;
             margin-top: 15px;
         }
         
@@ -154,6 +189,16 @@
             100% { transform: rotate(360deg); }
         }
         
+        .success-badge {
+            background: rgba(46, 204, 113, 0.3);
+            border: 1px solid rgba(46, 204, 113, 0.5);
+            border-radius: 20px;
+            padding: 10px 20px;
+            text-align: center;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+        
         .footer {
             text-align: center;
             margin-top: 30px;
@@ -161,35 +206,33 @@
             font-size: 14px;
         }
         
-        .success-badge {
-            background: rgba(46, 204, 113, 0.3);
+        .account-age {
+            background: linear-gradient(135deg, #667eea, #764ba2);
             padding: 8px 15px;
             border-radius: 20px;
-            font-size: 14px;
-            text-align: center;
-            margin-top: 15px;
+            font-weight: 600;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>باحث روبلكس المتقدم</h1>
-        <p class="subtitle">مع API Key رسمي - يعمل 100%</p>
+        <h1>🔍 Roblox Account Finder</h1>
+        <p class="subtitle">Find any Roblox account creation date and information</p>
         
         <div class="search-box">
-            <input type="text" id="username" placeholder="ادخل أي يوزر روبلكس...">
-            <button onclick="searchUser()">بحث</button>
+            <input type="text" id="username" placeholder="Enter Roblox username...">
+            <button onclick="searchUser()">Search</button>
         </div>
         
         <div id="result"></div>
         
         <div class="footer">
-            يستخدم Roblox API الرسمي • آمن وموثوق
+            Powered by Official Roblox API • Secure & Reliable
         </div>
     </div>
 
     <script>
-        // API Key الثابت
         const ROBLOX_API_KEY = 'mTpGkBGVF0SaPDqgdbyo3cwowWdLHwisU3uWwg3S3Kae/mXuZXlKaGJHY2lPaUpTVXpJMU5pSXNJbXRwWkNJNkluTnBaeTB5TURJeExUQTNMVEV6VkRFNE9qVXhPalE1V2lJc0luUjVjQ0k2SWtwWFZDSjkuZXlKaGRXUWlPaUpTYjJKc2IzaEpiblJsY201aGJDSXNJbWx6Y3lJNklrTnNiM1ZrUVhWMGFHVnVkR2xqWVhScGIyNVRaWEoyYVdObElpd2lZbUZ6WlVGd2FVdGxlU0k2SW0xVWNFZHJRa2RXUmpCVFlWQkVjV2RrWW5sdk0yTjNiM2RYWkV4SWQybHpWVE4xVjNkbk0xTXpTMkZsTDIxWWRTSXNJbTkzYm1WeVNXUWlPaUk1T1RJNE1UVTRNRE00SWl3aVpYaHdJam94TnpZeU9EZzFOVFU1TENKcFlYUWlPakUzTmpJNE9ERTVOVGtzSW01aVppSTZNVGMyTWpnNE1UazFPWDAuRGNpZ1VhZ01XamwxRkFqbHBya0dpWUtKMG5lOGh4aXpRblZqMXd1WDNJd2UtWGdFNTV1UlRIVy1sN1BvX0lISDlYTzRBUTBodzF3WUg4cUNiVGtxcU1UZjJ3OEtIQXFUdDZuSlJmcHVMTjdzWWxORVR6amsyYmpiYXBlNndrZk8wTDg5U1k2eWJlNnJiYWtCNzFvNC1EUE1HZ09NRy1rWDdTaXhyYkFES2xvbXQ3ZmotQWkxY2hGUVVsS084Z2xKSS1lY1dfZ2JhblZkQkpqaXQ4bzJqMzdVelV4RVRLcEFqSTlpUWlINE1Ody01MlNmajRhZUEweHoxSGtVRG9ubXNReFVaS3daam5OV1d2T0tzVXdLWk9TTGZrTGI0Z3VUWXliQ0JPazhPcngtVVFWRG04NUdJWUNNTUFDUG8wbDRQY2xvYW14b013MHI4LTFvMGhqU0V3';
 
         async function searchUser() {
@@ -197,20 +240,20 @@
             const resultDiv = document.getElementById('result');
             
             if (!username) {
-                showError('الرجاء ادخال يوزر!');
+                showError('Please enter a username!');
                 return;
             }
 
             resultDiv.innerHTML = `
                 <div class="loading">
                     <div class="spinner"></div>
-                    جاري البحث عن "${username}"...
+                    Searching for "${username}"...
                 </div>
             `;
             resultDiv.style.display = 'block';
 
             try {
-                // البحث عن المستخدم باستخدام API Key
+                // Search for user
                 const searchResponse = await fetch(`https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(username)}&limit=1`, {
                     headers: {
                         'x-api-key': ROBLOX_API_KEY,
@@ -219,7 +262,7 @@
                 });
                 
                 if (!searchResponse.ok) {
-                    throw new Error('خطأ في الاتصال مع Roblox API');
+                    throw new Error('API connection failed');
                 }
                 
                 const searchData = await searchResponse.json();
@@ -227,7 +270,7 @@
                 if (searchData.data && searchData.data.length > 0) {
                     const user = searchData.data[0];
                     
-                    // الحصول على معلومات المستخدم الكاملة
+                    // Get user details
                     const userResponse = await fetch(`https://users.roblox.com/v1/users/${user.id}`, {
                         headers: {
                             'x-api-key': ROBLOX_API_KEY,
@@ -237,76 +280,90 @@
                     
                     const userInfo = await userResponse.json();
                     
-                    // الحصول على صورة الأفاتار
+                    // Get avatar
                     const avatarResponse = await fetch(`https://thumbnails.roblox.com/v1/users/avatar?userIds=${user.id}&size=420x420&format=Png`);
                     const avatarData = await avatarResponse.json();
                     const avatarUrl = avatarData.data[0]?.imageUrl || '';
                     
                     if (userInfo.created) {
                         const creationDate = new Date(userInfo.created);
-                        const arabicDate = creationDate.toLocaleDateString('ar-SA', {
+                        const formattedDate = creationDate.toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
                         });
-                        const arabicTime = creationDate.toLocaleTimeString('ar-SA');
+                        const formattedTime = creationDate.toLocaleTimeString('en-US');
                         
                         let resultHTML = `
-                            <h3 style="margin-bottom: 20px; text-align: center;">✅ تم العثور على الحساب</h3>
+                            <div style="text-align: center; margin-bottom: 20px;">
+                                <h3 style="color: #2ecc71; margin-bottom: 15px;">✅ Account Found</h3>
                         `;
                         
                         if (avatarUrl) {
-                            resultHTML += `<img src="${avatarUrl}" class="avatar-img" alt="صورة البروفايل">`;
+                            resultHTML += `<img src="${avatarUrl}" class="avatar-img" alt="Profile Picture">`;
                         }
                         
                         resultHTML += `
-                            <div class="result-item">
-                                <span><strong>اليوزر:</strong></span>
-                                <span>${user.name}</span>
-                                <button class="copy-btn" onclick="copyToClipboard('${user.name}')">نسخ</button>
                             </div>
-                            <div class="result-item">
-                                <span><strong>الرقم:</strong></span>
-                                <span>${user.id}</span>
-                                <button class="copy-btn" onclick="copyToClipboard('${user.id}')">نسخ</button>
-                            </div>
-                            <div class="result-item">
-                                <span><strong>العرض:</strong></span>
-                                <span>${user.displayName || user.name}</span>
-                            </div>
-                            <div class="result-item">
-                                <span><strong>تاريخ الإنشاء:</strong></span>
-                                <span>${arabicDate}</span>
-                                <button class="copy-btn" onclick="copyToClipboard('${arabicDate}')">نسخ</button>
-                            </div>
-                            <div class="result-item">
-                                <span><strong>وقت الإنشاء:</strong></span>
-                                <span>${arabicTime}</span>
-                                <button class="copy-btn" onclick="copyToClipboard('${arabicTime}')">نسخ</button>
-                            </div>
-                            <div class="result-item">
-                                <span><strong>العمر:</strong></span>
-                                <span>${calculateAccountAge(creationDate)}</span>
-                            </div>
-                            <div class="result-item">
-                                <span><strong>الحالة:</strong></span>
-                                <span>${userInfo.isBanned ? 'محظور' : 'نشط'}</span>
+                            <div class="result-grid">
+                                <div class="result-item">
+                                    <span class="result-label">Username:</span>
+                                    <div>
+                                        <span class="result-value">${user.name}</span>
+                                        <button class="copy-btn" onclick="copyToClipboard('${user.name}')">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">User ID:</span>
+                                    <div>
+                                        <span class="result-value">${user.id}</span>
+                                        <button class="copy-btn" onclick="copyToClipboard('${user.id}')">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">Display Name:</span>
+                                    <span class="result-value">${user.displayName || user.name}</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">Creation Date:</span>
+                                    <div>
+                                        <span class="result-value">${formattedDate}</span>
+                                        <button class="copy-btn" onclick="copyToClipboard('${formattedDate}')">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">Creation Time:</span>
+                                    <div>
+                                        <span class="result-value">${formattedTime}</span>
+                                        <button class="copy-btn" onclick="copyToClipboard('${formattedTime}')">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">Account Age:</span>
+                                    <span class="account-age">${calculateAccountAge(creationDate)}</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">Status:</span>
+                                    <span class="result-value" style="color: ${userInfo.isBanned ? '#ff6b6b' : '#2ecc71'}">
+                                        ${userInfo.isBanned ? 'Banned' : 'Active'}
+                                    </span>
+                                </div>
                             </div>
                             <div class="success-badge">
-                                ✅ API Key نشط - يعمل 100%
+                                ✅ Official API • Working Perfectly
                             </div>
                         `;
                         
                         resultDiv.innerHTML = resultHTML;
                     } else {
-                        showError('لا يمكن العثور على تاريخ الإنشاء');
+                        showError('Creation date not found for this user');
                     }
                 } else {
-                    showError('المستخدم غير موجود!');
+                    showError('User not found! Try another username.');
                 }
                 
             } catch (error) {
-                showError('خطأ في الاتصال. حاول مرة أخرى.');
+                showError('Connection error. Please check API permissions and try again.');
                 console.error('API Error:', error);
             }
         }
@@ -320,11 +377,11 @@
             const diffMonths = Math.floor(remainingDays / 30);
             
             if (diffYears > 0) {
-                return `${diffYears} سنة و ${diffMonths} شهر`;
+                return `${diffYears} year${diffYears > 1 ? 's' : ''} ${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
             } else if (diffMonths > 0) {
-                return `${diffMonths} شهر و ${remainingDays % 30} يوم`;
+                return `${diffMonths} month${diffMonths > 1 ? 's' : ''} ${remainingDays % 30} day${(remainingDays % 30) > 1 ? 's' : ''}`;
             } else {
-                return `${diffDays} يوم`;
+                return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
             }
         }
 
@@ -337,22 +394,22 @@
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
                 const originalText = event.target.textContent;
-                event.target.textContent = 'تم النسخ!';
+                event.target.textContent = 'Copied!';
                 setTimeout(() => {
                     event.target.textContent = originalText;
                 }, 1500);
             });
         }
 
-        // البحث عند الضغط على Enter
+        // Search on Enter key
         document.getElementById('username').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 searchUser();
             }
         });
 
-        // تعبئة يوزر افتراضي للتجربة
-        document.getElementById('username').value = 'Roblox';
+        // Auto-focus on input
+        document.getElementById('username').focus();
     </script>
 </body>
 </html>
